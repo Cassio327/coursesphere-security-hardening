@@ -1,15 +1,33 @@
-# firebase.py
+import os
+
 import firebase_admin
 from firebase_admin import credentials, auth, db
-firebase_credentials = credentials.Certificate("./credentials.json")
-database_url = "https://coursesphere-8bd9a-default-rtdb.firebaseio.com"
-firebase_admin.initialize_app(firebase_credentials, {"databaseURL": database_url})
-firebase_app = firebase_admin.get_app()
+
+
+def ensure_firebase_initialized():
+    try:
+        return firebase_admin.get_app()
+    except ValueError:
+        credentials_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
+        database_url = os.getenv("FIREBASE_DATABASE_URL")
+
+        if not credentials_path or not database_url:
+            raise RuntimeError(
+                "Firebase is not configured. Set FIREBASE_CREDENTIALS_PATH "
+                "and FIREBASE_DATABASE_URL before using Firebase routes."
+            )
+
+        firebase_credentials = credentials.Certificate(credentials_path)
+        return firebase_admin.initialize_app(
+            firebase_credentials,
+            {"databaseURL": database_url},
+        )
 
 class Firebase:
     @staticmethod
     def create_user(email: str, password: str):
         try:
+            ensure_firebase_initialized()
             user = auth.create_user(email=email, password=password)
             user_data = {
             "message": "User created successfully",
@@ -23,6 +41,7 @@ class Firebase:
     @staticmethod
     def delete_user(uid: str):
         try:
+            ensure_firebase_initialized()
             auth.delete_user(uid)
             ref = db.reference(f"users/{uid}")
             ref.delete()
@@ -32,6 +51,7 @@ class Firebase:
     @staticmethod
     def verify_id_token(id_token: str):
         try:
+            ensure_firebase_initialized()
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token
         except Exception as e:
@@ -40,6 +60,7 @@ class Firebase:
     @staticmethod
     def set_user_info(uid: str, user_info: dict):
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"users/{uid}/info")
             ref.set(user_info)
         except Exception as e:
@@ -48,6 +69,7 @@ class Firebase:
     @staticmethod
     def get_user_info(uid: str):
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"users/{uid}/info")
             user_info = ref.get()
             return user_info
@@ -66,6 +88,7 @@ class Firebase:
     @staticmethod
     def update_user_info(uid: str, updates: dict):
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"users/{uid}/info")
             ref.update(updates)
         except Exception as e:
@@ -81,6 +104,7 @@ class Firebase:
         :param data: A dictionary of the data to store in the document.
         """
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"{collection}/{document_id}")
             ref.set(data)
         except Exception as e:
@@ -96,6 +120,7 @@ class Firebase:
         :return: The document data as a dictionary.
         """
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"{collection}/{document_id}")
             document = ref.get()
             return document
@@ -112,6 +137,7 @@ class Firebase:
         :param updates: A dictionary of the updates to apply to the document.
         """
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"{collection}/{document_id}")
             ref.update(updates)
         except Exception as e:
@@ -126,6 +152,7 @@ class Firebase:
         :param document_id: The ID of the document to delete.
         """
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"{collection}/{document_id}")
             ref.delete()
         except Exception as e:
@@ -135,6 +162,7 @@ class Firebase:
     @staticmethod
     def save_chat(uid: str, chat_id: str, messages: list):
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"users/{uid}/chats/{chat_id}/messages")
             
             # Ensure messages is a list of dictionaries
@@ -152,6 +180,7 @@ class Firebase:
     @staticmethod
     def delete_chat(uid: str, chat_id: str):
         try:
+            ensure_firebase_initialized()
             ref = db.reference(f"users/{uid}/chats/{chat_id}")
             ref.delete()  # Deletes the entire chat session
         except Exception as e:
