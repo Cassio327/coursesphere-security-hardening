@@ -41,17 +41,57 @@ A exposição de credenciais observada no repositório de referência será anal
 
 ## Limitações iniciais conhecidas
 
-A inspeção preliminar identificou os seguintes bloqueios funcionais, que ainda precisam ser reproduzidos e registrados:
+A inspeção preliminar identificou os seguintes bloqueios funcionais:
 
 - erros TypeScript impedem o build do frontend;
 - o backend depende de arquivos locais de configuração não fornecidos;
-- `numpy` é utilizado, mas não aparece em `backend/requirements.txt`;
+- `numpy` é utilizado diretamente, mas não aparece em `backend/requirements.txt`;
 - código da OpenAI é executado durante a importação de `backend/main.py`;
 - o blueprint de cursos não está registrado;
 - o banco SQLite referenciado não está incluído;
 - não existem testes automatizados, métricas ou Dockerfile do backend.
 
 Esses itens são limitações funcionais. Eles não serão classificados como vulnerabilidades sem demonstração de impacto de segurança.
+
+## Reprodução do estado inicial
+
+### Frontend
+
+Comandos executados:
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+A instalação concluiu com 375 pacotes. O build terminou com código 2 durante a verificação TypeScript. Os erros foram agrupados em:
+
+- imports e variáveis declaradas, mas não utilizadas;
+- ausência da declaração de tipos do jQuery;
+- propriedade `sectionNumber` ausente ao criar um cartão de curso;
+- propriedades incompatíveis em um componente do dashboard.
+
+Nenhum desses erros foi corrigido nesta etapa. O objetivo foi registrar o comportamento inicial.
+
+### Backend
+
+Comandos executados:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+cd backend
+../.venv/bin/python endpoints.py
+../.venv/bin/python main.py
+```
+
+A instalação das dependências foi concluída. A API não iniciou:
+
+1. `endpoints.py` encerrou com `FileNotFoundError` ao importar `firebase.py`, que espera `credentials.json` no diretório atual;
+2. `main.py` encerrou com `FileNotFoundError`, pois tenta abrir `config.json` durante a importação.
+
+O arquivo `requirements.txt` não fixa versões. Portanto, uma instalação futura pode resolver versões diferentes das utilizadas nesta reprodução.
 
 ## Regra de testes
 
