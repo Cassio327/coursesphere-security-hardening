@@ -21,7 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 
 
-const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
+const MajorSelection = (props: {majors: string[], setMajors: (value: string[]) => void}) => {
   const {majors, setMajors} = props;
   return (
     <Autocomplete
@@ -55,7 +55,7 @@ const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
   );
 };
 
-const MinorSelection = (props: {minors: string[], setMinors: Function}) => {
+const MinorSelection = (props: {minors: string[], setMinors: (value: string[]) => void}) => {
   const {minors, setMinors} = props
 
   return (
@@ -103,7 +103,7 @@ const collegeOptions = [
   "Cornell SC Johnson College of Business",
 ];
 
-const YearSelection = (props: {year: string, setYear: Function}) => {
+const YearSelection = (props: {year: string, setYear: (value: string) => void}) => {
   const {year, setYear} = props
   return (
     <Autocomplete
@@ -121,7 +121,7 @@ const YearSelection = (props: {year: string, setYear: Function}) => {
   );
 };
 
-const CollegeSelection = (props: {college: string, setCollege: Function}) => {
+const CollegeSelection = (props: {college: string, setCollege: (value: string) => void}) => {
   const {college, setCollege} = props
   return (
     <Autocomplete
@@ -140,7 +140,7 @@ const CollegeSelection = (props: {college: string, setCollege: Function}) => {
     />);
 };
 
-const CourseList = (props: {courses: string[], handleRemove: Function}) => {
+const CourseList = (props: {courses: string[], handleRemove: (course: string) => void}) => {
   const {courses, handleRemove} = props;
   return (
     <Box
@@ -168,7 +168,7 @@ const CourseList = (props: {courses: string[], handleRemove: Function}) => {
   );
 };
 
-const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
+const CoursesInput = (props: {courses: string[], setCourses: (value: string[]) => void}) => {
   const [course, setCourse] = useState<string>("");
   const {courses, setCourses} = props;
 
@@ -215,7 +215,7 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
   );
 };
 
-const TellMeAboutYourself = (props: {about: string, setAbout: Function}) => {
+const TellMeAboutYourself = (props: {about: string, setAbout: (value: string) => void}) => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>

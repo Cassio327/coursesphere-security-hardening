@@ -48,7 +48,7 @@ function performSignup() {
         theme: "light"
       });
     });
-};
+}
 
 /**
  * This function performs the user login transaction with firebase.
@@ -78,12 +78,12 @@ function performLogin() {
  * @param setCourses 
  */
 async function setProfileInfoIfLoggedIn(
-  setMajors: Function,
-  setMinors: Function,
-  setYear: Function,
-  setCollege: Function,
-  setCourses: Function,
-  setAbout: Function
+  setMajors: (value: string[]) => void,
+  setMinors: (value: string[]) => void,
+  setYear: (value: string) => void,
+  setCollege: (value: string) => void,
+  setCourses: (value: string[]) => void,
+  setAbout: (value: string) => void
 ){
   onAuthStateChanged(auth, async (user) => {
     if (!ensureUserLoggedIn()) return;
@@ -294,7 +294,7 @@ async function deleteCourseSphereChat(chatId: string, messageId: string) {
 }
 
 // h Function
-async function h(data: any): Promise<string | undefined> {
+async function h(data: unknown): Promise<string | undefined> {
   if (!await ensureUserLoggedIn()) return;
 
   const user = auth.currentUser;
