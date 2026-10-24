@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { List, ListItem, ListItemText, Typography } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
 import { toast } from 'react-toastify';
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "../../firebaseConfig";
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
 const auth = getAuth(app);
 
 export default function UserChats() {

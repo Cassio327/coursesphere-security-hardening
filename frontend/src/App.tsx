@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Box, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { createTheme } from '@mui/material/styles';
 import { ToastContainer } from 'react-toastify';
 import Header from "./components/header/Header"

@@ -35,7 +35,7 @@ const MajorSelection = (props: {majors: string[], setMajors: Function}) => {
       options={majorOptions}
       getOptionLabel={(option) => option}
       value={majors}
-      onChange={(event, newValue: string[]) => {
+      onChange={(_event, newValue: string[]) => {
         setMajors(newValue);
       }}
       renderTags={(value, getTagProps) =>
@@ -69,7 +69,7 @@ const MinorSelection = (props: {minors: string[], setMinors: Function}) => {
       options={minorOptions}
       getOptionLabel={(option) => option}
       value={minors}
-      onChange={(event, newValue: string[]) => {
+      onChange={(_event, newValue: string[]) => {
         setMinors(newValue);
       }}
       renderTags={(value, getTagProps) =>
@@ -111,8 +111,8 @@ const YearSelection = (props: {year: string, setYear: Function}) => {
       id = "year-output"
       disablePortal 
       value = {year}
-      onChange = {(event, newValue) => {
-        setYear(newValue)
+      onChange = {(_event, newValue) => {
+        setYear(newValue ?? "")
       }}
       options={yearOptions}
       sx={{ width: 200 }}
@@ -128,8 +128,8 @@ const CollegeSelection = (props: {college: string, setCollege: Function}) => {
       className="selector"
       id = "college-output"
       value = {college}
-      onChange = {(event, newValue) => {
-        setCollege(newValue)
+      onChange = {(_event, newValue) => {
+        setCollege(newValue ?? "")
       }}
       disablePortal
       options={collegeOptions}
@@ -147,7 +147,7 @@ const CourseList = (props: {courses: string[], handleRemove: Function}) => {
       sx={{ flex: "1 1 auto", height: 200, width: 300, overflow: "auto" }}
     >
       <List>
-        {Array.from(courses).map((course, index: any) => (
+        {Array.from(courses).map((course, index) => (
           <ListItem
             key={index}
             secondaryAction={
@@ -186,7 +186,7 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
             options={allCornellCourses}
             value={course}
             id = "courses-output"
-            onChange={(event: any, newValue: string | null) => {
+            onChange={(_event, newValue: string | null) => {
               if (newValue) {
                 setCourse(newValue);
                 const newSet:string[] = Array.from(courses);
@@ -208,7 +208,6 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
             let newSet: string[] = Array.from(courses)
             newSet = newSet.filter((c: string) => c != course)
             setCourses(newSet);
-            console.log(newSet);
           }}
         />
       </Grid>
@@ -216,7 +215,7 @@ const CoursesInput = (props: {courses: string[], setCourses: Function}) => {
   );
 };
 
-const TellMeAboutYourself = (props: {about: string, setCourses: Function}) => {
+const TellMeAboutYourself = (props: {about: string, setAbout: Function}) => {
   return (
     <Grid item xs={12}>
       <Typography variant="h6">Tell me about yourself</Typography>
@@ -233,6 +232,8 @@ const TellMeAboutYourself = (props: {about: string, setCourses: Function}) => {
         multiline
         fullWidth
         rows={4}
+        value={props.about}
+        onChange={(event) => props.setAbout(event.target.value)}
         placeholder="I'm interested in machine learning and artificial intelligence. I have a background in computer science and would like to learn more about the applications of AI in the healthcare industry. I'm also interested in entrepreneurship and would like to start my own company one day."
       />
     </Grid>
