@@ -1,13 +1,15 @@
-import $ from 'jquery';
 import firebaseConfig from "./firebaseConfig";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Database, getDatabase, set } from "firebase/database";
 import { Auth, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "react-toastify";
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
-const database: Database = getDatabase(app);
-const auth: Auth = getAuth();
+const auth: Auth = getAuth(app);
+
+function getInputValue(id: string): string {
+  const input = document.getElementById(id) as HTMLInputElement | null;
+  return input?.value ?? "";
+}
 
 
 async function createUser (email: string, password: string) {
@@ -25,8 +27,8 @@ async function createUser (email: string, password: string) {
 
 
 function performSignup() {
-  const email: string = $("#signup-email-input").val();
-  const password: string = $("#signup-password-input").val();
+  const email = getInputValue("signup-email-input");
+  const password = getInputValue("signup-password-input");
 
   createUser(email, password)
     .then(() => {
@@ -46,15 +48,15 @@ function performSignup() {
         theme: "light"
       });
     });
-};
+}
 
 /**
  * This function performs the user login transaction with firebase.
  * 
  */
 function performLogin() {
-  const email: string = $("#login-email-input").val();
-  const password: string = $("#login-password-input").val();
+  const email = getInputValue("login-email-input");
+  const password = getInputValue("login-password-input");
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       window.location.replace("/");
@@ -76,12 +78,12 @@ function performLogin() {
  * @param setCourses 
  */
 async function setProfileInfoIfLoggedIn(
-  setMajors: Function,
-  setMinors: Function,
-  setYear: Function,
-  setCollege: Function,
-  setCourses: Function,
-  setAbout: Function
+  setMajors: (value: string[]) => void,
+  setMinors: (value: string[]) => void,
+  setYear: (value: string) => void,
+  setCollege: (value: string) => void,
+  setCourses: (value: string[]) => void,
+  setAbout: (value: string) => void
 ){
   onAuthStateChanged(auth, async (user) => {
     if (!ensureUserLoggedIn()) return;
@@ -106,12 +108,10 @@ async function setProfileInfoIfLoggedIn(
       }
 
       if (data["year"]) {
-        //$("#year-output").val(data["year"])
         setYear(data["year"])
       }
 
       if (data["college"]) {
-        //$("#college-output").val(data["college"])
         setCollege(data["college"])
       }
 
@@ -120,7 +120,6 @@ async function setProfileInfoIfLoggedIn(
       }
 
       if (data["about"]) {
-        $("#info-output").val(data["about"])
         setAbout(data["about"])
       }
 
@@ -142,9 +141,9 @@ async function setProfileInfoIfLoggedIn(
 async function saveProfileChanges (majors: string[], minors: string[], courses: string[]) {
   if (!ensureUserLoggedIn()) return;
   const user = auth.currentUser;
-  const about = $("#info-output").val()
-  const year = $("#year-output").val()
-  const college = $("#college-output").val()
+  const about = getInputValue("info-output")
+  const year = getInputValue("year-output")
+  const college = getInputValue("college-output")
   const idToken = await user?.getIdToken(); // User won't be null due to the early return statement above, ignore the ?. 
 
   const data = {
@@ -295,7 +294,7 @@ async function deleteCourseSphereChat(chatId: string, messageId: string) {
 }
 
 // h Function
-async function h(data: any): Promise<string | undefined> {
+async function h(data: unknown): Promise<string | undefined> {
   if (!await ensureUserLoggedIn()) return;
 
   const user = auth.currentUser;

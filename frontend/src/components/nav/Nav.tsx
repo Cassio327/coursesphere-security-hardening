@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import {
   AppBar,
   Button,
@@ -10,19 +11,15 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Hidden,
-  useMediaQuery,
-  useTheme
+  Hidden
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Auth, getAuth, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseApp, initializeApp } from 'firebase/app';
-import { Database, getDatabase } from 'firebase/database';
 import firebaseConfig from '../../firebaseConfig';
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
-const database: Database = getDatabase(app);
-const auth: Auth = getAuth();
+const auth: Auth = getAuth(app);
 
 function NavLink(props: { text: string, path: string }) {
   return (
@@ -59,8 +56,8 @@ export default function Nav() {
     });
   }, []);
 
-  const toggleDrawer = (open: boolean) => (event: any) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+  const toggleDrawer = (open: boolean) => (event: KeyboardEvent | MouseEvent) => {
+    if ('key' in event && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
     setDrawerOpen(open);
@@ -85,9 +82,6 @@ export default function Nav() {
       )}
     </List>
   );
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <AppBar position="static">

@@ -38,3 +38,7 @@ Os testes devem ser executados somente em ambiente local e isolado. Credenciais,
 Aplicação de referência: [LambdaAK/CourseSphere](https://github.com/LambdaAK/CourseSphere).
 
 As alterações de segurança, confiabilidade, infraestrutura e documentação deste repositório fazem parte do desafio técnico.
+
+## Desenvolvimento local
+
+As instruções de preparação, execução e validação estão em [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
