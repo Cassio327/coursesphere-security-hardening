@@ -5,6 +5,10 @@ base_url="${BASE_URL:-http://localhost:8080}"
 evidence_file="$(mktemp)"
 trap 'rm -f "$evidence_file"' EXIT
 
+curl --fail --silent --show-error \
+    --retry 15 --retry-delay 1 --retry-all-errors \
+    "${base_url}/healthz" > /dev/null
+
 echo "Requesting ${base_url}/api/health eight times:"
 request_number=1
 while [ "$request_number" -le 8 ]; do
