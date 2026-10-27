@@ -1,0 +1,51 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "1 - (sum(rate(coursesphere_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(coursesphere_http_requests_total[5m])), 0.001))", "legendFormat": "availability"}],
+      "title": "Availability SLI - 5 minutes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(coursesphere_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p95"}],
+      "title": "Latency SLI - p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [{"expr": "sum by (instance) (rate(coursesphere_http_requests_total[5m]))", "legendFormat": "{{instance}}"}],
+      "title": "Requests by backend instance",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "targets": [{"expr": "sum(rate(coursesphere_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(coursesphere_http_requests_total[5m])), 0.001)", "legendFormat": "5xx ratio"}],
+      "title": "Server error ratio",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["coursesphere", "sre"],
+  "templating": {"list": []},
+  "time": {"from": "now-30m", "to": "now"},
+  "timezone": "browser",
+  "title": "CourseSphere - Reliability",
+  "uid": "coursesphere-reliability",
+  "version": 1
+}
