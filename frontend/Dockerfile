@@ -1,24 +1,19 @@
-# Use an official Node.js image as the base
-FROM node:16-alpine
+FROM node:20-alpine AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
-
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-RUN npm install -g serve
-
-# Copy the rest of the app's source code to the working directory
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 
-# Build the app
+ARG VITE_API_BASE_URL=/api
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
-# Expose the port that the app will run on
-EXPOSE 3000
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 
-# Define the command to run the app
-CMD ["serve", "-s", "dist", "-l", "3000"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1

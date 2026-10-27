@@ -27,7 +27,7 @@ def get_course(course_id):
     :return: A JSON response with the course data and a 200 status code.
              If the course is not found, returns a 404 status code.
     """
-    course = execute_query(f"SELECT * FROM courses WHERE id = {course_id}").fetchall()
+    course = execute_query("SELECT * FROM courses WHERE id = ?", (course_id,))
     if course:
         return success_response(course, 200)
     else:
@@ -44,8 +44,8 @@ def get_course_description(course_id):
              If the course is not found, returns a 404 status code.
     """
     course = execute_query(
-        f"SELECT description FROM course_descriptions WHERE id = {course_id}"
-    ).fetchall()
+        "SELECT description FROM course_descriptions WHERE id = ?", (course_id,)
+    )
     if course:
         return success_response(course, 200)
     else:
@@ -61,8 +61,8 @@ def get_courses_by_section(section_id):
     :return: A JSON response with the list of courses and a 200 status code.
     """
     courses = execute_query(
-        f"SELECT * FROM courses WHERE section_id = {section_id}"
-    ).fetchall()
+        "SELECT * FROM courses WHERE section_id = ?", (section_id,)
+    )
     if not courses:
         return error_response("No courses found for this section", 404)
     return success_response(courses, 200)
@@ -77,8 +77,8 @@ def get_courses_by_semester(semester):
     :return: A JSON response with the list of courses and a 200 status code.
     """
     courses = execute_query(
-        f"SELECT * FROM courses WHERE semester = '{semester}'"
-    ).fetchall()
+        "SELECT * FROM courses WHERE semester = ?", (semester,)
+    )
     if not courses:
         return error_response("No courses found for this semester", 404)
     return success_response(courses, 200)
@@ -93,8 +93,8 @@ def get_courses_by_department(department):
     :return: A JSON response with the list of courses and a 200 status code.
     """
     courses = execute_query(
-        f"SELECT * FROM courses WHERE department = '{department}'"
-    ).fetchall()
+        "SELECT * FROM courses WHERE department = ?", (department,)
+    )
     if not courses:
         return error_response("No courses found for this department", 404)
     return success_response(courses, 200)
@@ -109,8 +109,8 @@ def get_courses_by_instructor(instructor):
     :return: A JSON response with the list of courses and a 200 status code.
     """
     courses = execute_query(
-        f"SELECT * FROM courses WHERE instructor = '{instructor}'"
-    ).fetchall()
+        "SELECT * FROM courses WHERE instructor = ?", (instructor,)
+    )
     if not courses:
         return error_response("No courses found for this instructor", 404)
     return success_response(courses, 200)
