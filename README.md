@@ -85,6 +85,8 @@ O script faz oito requisições e imprime o campo `instance`. O resultado deve c
 
 Os logs JSON do Nginx também exibem `upstream`, permitindo identificar qual container respondeu.
 
+Uma execução real registrada pelo CI está em [docs/evidence/LOAD-BALANCING.md](docs/evidence/LOAD-BALANCING.md).
+
 ## Executar testes
 
 ### Backend

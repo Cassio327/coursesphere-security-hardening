@@ -170,7 +170,7 @@ Foram implementados logs JSON, correlação por `X-Request-ID`, `/health`, `/met
 - Firebase e OpenAI não foram exercitados por falta de credenciais próprias e por regra de isolamento.
 - A autenticação depende da disponibilidade e das garantias do Firebase.
 - O conteúdo funcional de cursos não pode ser validado sem o banco original.
-- O Docker Compose foi validado estruturalmente neste ambiente, mas a execução completa deve ser confirmada em host com Docker.
+- O Docker Compose foi construído e executado no CI, incluindo as duas réplicas e o Nginx; a interface do Grafana não foi inspecionada manualmente neste ambiente.
 - O rate limiter local não compartilha contadores entre réplicas.
 - A aplicação ainda precisa de TLS e gestão centralizada de segredos para um cenário produtivo.
 
