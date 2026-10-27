@@ -39,7 +39,8 @@ class QueryManager:
         the response
         :param query: The query to be managed (im running out of ideas)
         """
-        assert (query is not None)
+        if query is None:
+            raise ValueError("Query is required")
         
         self.query = query
         self.user_data = CourseSphereUser(user_data)
