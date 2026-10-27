@@ -55,6 +55,18 @@ jobs:
         run: docker compose config --quiet
       - name: Build application images
         run: docker compose build backend-1 frontend
+      - name: Start replicated application
+        run: docker compose up --detach backend-1 backend-2 frontend nginx
+      - name: Demonstrate load balancing
+        run: ./scripts/demo-load-balancing.sh
+      - name: Run container security smoke test
+        run: ./scripts/security-smoke-test.sh
+      - name: Show application logs on failure
+        if: failure()
+        run: docker compose logs nginx backend-1 backend-2
+      - name: Stop application
+        if: always()
+        run: docker compose down --volumes
 
   secrets:
     runs-on: ubuntu-latest
