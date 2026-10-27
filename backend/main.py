@@ -1,26 +1,16 @@
-import hashlib as h
+import hashlib
 import json
 import os
 from pathlib import Path
-import numpy as np
 from openai import OpenAI
-import random as rv
-import secrets as st
-import string as s
+import secrets
 
 BASE_DIR = Path(__file__).resolve().parent
 QUESTION_TYPES_PATH = BASE_DIR / "query_types.json"
 
-def shuffle(p: str) -> str:
-    char_list = list(p)
-    rv.shuffle(char_list)
-    return ''.join(char_list)
-
 def hashFunction(data) -> str:
-    x = h.sha256((str(data) + ''.join(rv.choices(s.ascii_letters + s.digits, k=rv.randint(5,9)))).encode()).hexdigest()
-    w = str(sum(np.random.poisson(lam=i) for i in range(rv.randint(1, 5))))
-    b = st.token_hex(16) 
-    return shuffle(f"{w}{x}+{b}")
+    serialized_data = json.dumps(data, sort_keys=True, default=str).encode("utf-8")
+    return hashlib.sha256(serialized_data + secrets.token_bytes(32)).hexdigest()
 
 
 with QUESTION_TYPES_PATH.open(encoding="utf-8") as question_types_file:

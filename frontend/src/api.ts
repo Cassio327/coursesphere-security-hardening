@@ -5,6 +5,11 @@ import { toast } from "react-toastify";
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+function apiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
 
 function getInputValue(id: string): string {
   const input = document.getElementById(id) as HTMLInputElement | null;
@@ -13,7 +18,7 @@ function getInputValue(id: string): string {
 
 
 async function createUser (email: string, password: string) {
-  const response = await fetch('http://127.0.0.1:5000/users/create', {
+  const response = await fetch(apiUrl('/users/create'), {
     method: 'POST',
     mode: "cors",
     headers: {
@@ -90,10 +95,11 @@ async function setProfileInfoIfLoggedIn(
     const idToken = await user?.getIdToken()
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/users/info?id_token=${idToken}`, {
+      const response = await fetch(apiUrl('/users/info'), {
         method: "GET",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${idToken}`
         }
       })
 
@@ -152,14 +158,14 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
     year: year,
     college: college,
     courses: courses,
-    about: about,
-    id_token: idToken
+    about: about
   };
 
-  fetch("http://127.0.0.1:5000/users/info", {
+  fetch(apiUrl("/users/info"), {
     method: "POST",
     headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
     },
     body: JSON.stringify(data)
   })
@@ -180,9 +186,9 @@ async function saveProfileChanges (majors: string[], minors: string[], courses: 
  */
 async function fetchCourseSphereResponse(query: string) {
   const user = auth.currentUser;
-  const idToken = user?.getIdToken();
-  const data = { query, idToken };
-  const response = await fetch("http://127.0.0.1:5000/users/query", {
+  const idToken = await user?.getIdToken();
+  const data = { query };
+  const response = await fetch(apiUrl("/users/query"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -225,14 +231,13 @@ async function saveCourseSphereChat(chatId: string, messages: Message[]) {
   const user = auth.currentUser;
   const idToken = await user?.getIdToken();
 
-  const response = await fetch(`/chats/${chatId}/messages`, {
+  const response = await fetch(apiUrl(`/chats/${chatId}/messages`), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     },
     body: JSON.stringify({
-      id_token: idToken,
       messages: messages.map(message => ({
         sender: message.sender,
         content: message.content,
@@ -257,13 +262,13 @@ async function updateCourseSphereChat(chatId: string, messageId: string, updated
   const user = auth.currentUser;
   const idToken = await user?.getIdToken();
 
-  const response = await fetch(`/chats/${chatId}/messages/${messageId}`, {
+  const response = await fetch(apiUrl(`/chats/${chatId}/messages/${messageId}`), {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
     },
     body: JSON.stringify({
-      id_token: idToken,
       content: updatedContent
     })
   });
@@ -279,7 +284,7 @@ async function deleteCourseSphereChat(chatId: string, messageId: string) {
   const user = auth.currentUser;
   const idToken = await user?.getIdToken();
 
-  const response = await fetch(`/chats/${chatId}/messages/${messageId}`, {
+  const response = await fetch(apiUrl(`/chats/${chatId}/messages/${messageId}`), {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -300,7 +305,7 @@ async function h(data: unknown): Promise<string | undefined> {
   const user = auth.currentUser;
   const idToken = await user?.getIdToken();
 
-  const response = await fetch("http://127.0.0.1:5000/hash", {
+  const response = await fetch(apiUrl("/hash"), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

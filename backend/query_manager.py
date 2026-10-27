@@ -1,7 +1,5 @@
-from openai import OpenAI
 from dataclasses import dataclass, field
 from typing import List
-import json
 
 # Load configuration and question types
 #config = json.load(open("./config.json", "r"))
