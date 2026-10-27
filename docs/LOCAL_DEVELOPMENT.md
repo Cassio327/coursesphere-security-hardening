@@ -1,59 +1,56 @@
-# Desenvolvimento local
+# Desenvolvimento local sem Docker
 
-Este documento descreve o ambiente utilizado para reproduzir e corrigir os bloqueios iniciais do CourseSphere.
+O Docker Compose é o caminho recomendado. Estas instruções servem para alterar e testar backend e frontend separadamente.
 
-## Versões testadas
+## Backend
 
-- Python 3.12.14
-- Node.js 24.22.1
-- npm 11.9.0
+Requisitos: Python 3.12.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements-dev.txt
+python backend/endpoints.py
+```
+
+Por padrão, a API escuta apenas `127.0.0.1:5000`. Endpoints disponíveis sem integrações externas:
+
+- `http://127.0.0.1:5000/health`
+- `http://127.0.0.1:5000/metrics`
+
+Validação:
+
+```bash
+pytest -q backend/tests
+python -m compileall -q backend
+bandit -q -r backend -x backend/tests
+pip-audit -r backend/requirements.txt
+```
 
 ## Frontend
 
-Prepare o arquivo local de configuração:
+Requisitos: Node.js 20 ou superior.
 
 ```bash
 cd frontend
 cp .env.example .env
 npm ci
+npm run dev
 ```
 
-O arquivo `.env` não deve ser enviado ao GitHub. Os valores de exemplo permitem gerar o build, mas as funcionalidades do Firebase exigem uma configuração própria e autorizada.
+Configure `VITE_API_BASE_URL=http://127.0.0.1:5000`. Os placeholders Firebase permitem o build, mas login e perfil exigem um projeto próprio e autorizado.
 
-Comandos de validação:
+Validação:
 
 ```bash
 npm run lint
 npm run build
+npm audit --audit-level=high
 ```
 
-Resultado obtido:
+## Integrações autorizadas
 
-- lint concluído sem erros;
-- build de produção concluído;
-- aviso de bundle acima de 500 kB mantido para otimização futura.
-
-Para abrir o servidor de desenvolvimento:
-
-```bash
-npm run dev
-```
-
-## Backend
-
-Crie um ambiente virtual e instale as versões registradas:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-cd backend
-python endpoints.py
-```
-
-A API inicia sem arquivos privados. Firebase e OpenAI são carregados somente quando uma operação dependente dessas integrações é executada.
-
-Para utilizar integrações externas em um ambiente autorizado, configure:
+Variáveis do backend:
 
 ```bash
 export OPENAI_API_KEY="sua-chave"
@@ -61,22 +58,13 @@ export FIREBASE_CREDENTIALS_PATH="/caminho/credentials.json"
 export FIREBASE_DATABASE_URL="https://seu-projeto.firebaseio.com"
 ```
 
-Nunca utilize valores do repositório de referência.
+Nunca use valores encontrados no repositório de referência. `.env`, `credentials.json` e arquivos de chave são ignorados pelo Git.
 
-## Validação sem serviços externos
+## Configurações de segurança
 
-A importação e o mapa de rotas podem ser verificados com:
-
-```bash
-python -c "import sys; sys.path.insert(0, 'backend'); from endpoints import app; print(app.url_map)"
-```
-
-O teste confirma que o Flask carrega as rotas sem tentar conectar ao Firebase ou à OpenAI durante a importação.
-
-## Limitações atuais
-
-- rotas que dependem do Firebase não funcionam sem configuração própria;
-- a resposta do gerenciador de consultas ainda é uma implementação simulada;
-- o blueprint de cursos ainda não está registrado;
-- o servidor Flask permanece com configurações originais que serão avaliadas na etapa de segurança;
-- Docker e balanceamento serão tratados em uma etapa posterior.
+- `CORS_ALLOWED_ORIGINS`: lista separada por vírgula;
+- `CREATE_USER_RATE_LIMIT`: tentativas por janela;
+- `CREATE_USER_RATE_WINDOW`: janela em segundos;
+- `ENABLE_HSTS`: habilite somente atrás de HTTPS;
+- `TRUST_PROXY_HEADERS`: habilite somente atrás de proxy controlado;
+- `INSTANCE_ID`: identificação usada em logs e métricas.
