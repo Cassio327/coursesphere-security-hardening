@@ -11,7 +11,8 @@ Avaliação prática de AppSec, SRE e DevOps realizada sobre o [CourseSphere](ht
 - endpoints `/health` e `/metrics` compatíveis com Prometheus;
 - Nginx na frente de 2 backends;
 - dashboard Grafana provisionado automaticamente;
-- SAST, SCA, build de containers e detecção de segredos no CI.
+- SAST, SCA, build de containers e detecção de segredos no CI;
+- 0 vulnerabilidades conhecidas no `npm audit` após a revisão final.
 
 O [relatório técnico](docs/SECURITY_REPORT.md) contém severidade, impacto, causa raiz, passos de reprodução, evidências sanitizadas e recomendações priorizadas.
 
@@ -100,11 +101,14 @@ pytest -q backend/tests
 
 ### Frontend
 
+Pré-requisito para execução local: Node.js 20.19+ ou 22.12+.
+
 ```bash
 cd frontend
 npm ci
 npm run lint
 npm run build
+npm audit --audit-level=high
 ```
 
 ### Verificação rápida da versão corrigida
@@ -131,7 +135,7 @@ pip-audit -r backend/requirements.txt
 cd frontend && npm audit --audit-level=high
 ```
 
-O CI também executa testes, Bandit, `pip-audit`, auditoria npm, Gitleaks, validação do Compose e build das imagens. Resultados locais registrados: [docs/TOOL_RESULTS.md](docs/TOOL_RESULTS.md).
+O CI também executa testes, Bandit, `pip-audit`, auditoria npm, Gitleaks, validação do Compose e build das imagens. Vulnerabilidades npm altas ou críticas bloqueiam a pipeline. Resultados registrados: [docs/TOOL_RESULTS.md](docs/TOOL_RESULTS.md).
 
 ## Reproduzir os achados com segurança
 
@@ -154,7 +158,7 @@ cd ../coursesphere-baseline/backend
 
 Resultado histórico esperado: HTTP 200 sem Bearer token. Na versão corrigida, o teste equivalente retorna HTTP 401.
 
-Para reproduzir cada achado, siga os documentos:
+O roteiro completo, com comandos e resultados esperados, está em [docs/REPRODUCTION.md](docs/REPRODUCTION.md). As evidências individuais são:
 
 - [VULN-01 — credencial no código-fonte](docs/evidence/VULN-01-secret-in-source.md)
 - [VULN-02 — token na URL](docs/evidence/VULN-02-token-in-url.md)
@@ -183,6 +187,7 @@ frontend/                aplicação React e imagem web
 infrastructure/          Nginx, Prometheus e Grafana
 scripts/                 demonstrações reproduzíveis
 docs/evidence/           evidências antes e depois
+docs/REPRODUCTION.md     roteiro executável dos cinco achados
 docs/SECURITY_REPORT.md  relatório de AppSec e confiabilidade
 docs/OBSERVABILITY.md    SLIs, SLOs, dashboard e riscos
 docs/THREAT_MODEL.md     fluxo de dados e STRIDE
