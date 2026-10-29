@@ -3,7 +3,7 @@
 **Aplicação:** CourseSphere  
 **Referência analisada:** `LambdaAK/CourseSphere@71616a08b8756f048d5bf237be433c3b996a43d1`  
 **Baseline reproduzível deste repositório:** `f0765ae1f97a48d19f25b37debc033fe4bd5160f`  
-**Data da avaliação:** 27/10/2026  
+**Data da avaliação:** 27/10/2026; revisão final em 29/10/2026  
 **Ambiente:** cópia local e isolada
 
 ## 1. Resumo executivo
@@ -18,7 +18,7 @@ A avaliação confirmou cinco vulnerabilidades em quatro categorias da OWASP Top
 | VULN-04 | Exposição de exceções internas | Configuração incorreta | Média | Corrigida |
 | VULN-05 | Consulta aceita sem autenticação | Controle de acesso | Média | Corrigida |
 
-As correções foram acompanhadas por testes de regressão. O hardening adicional inclui rate limiting, validação de entrada, limite de payload, headers HTTP de segurança, execução dos containers sem root e verificação automatizada no CI.
+As correções foram acompanhadas por testes de regressão. O hardening adicional inclui rate limiting, validação de entrada, limite de payload, headers HTTP de segurança, execução dos containers sem root e verificações automatizadas e bloqueantes no CI. A revisão final das dependências do frontend eliminou 39 alertas conhecidos do `npm audit` sem quebrar lint ou build.
 
 ## 2. Escopo e regras de segurança
 
@@ -47,7 +47,7 @@ O blueprint de cursos continha consultas construídas por interpolação, mas n�
 3. Reprodução dinâmica com o test client do Flask, sem tráfego externo.
 4. Classificação por impacto, pré-condições e facilidade de exploração.
 5. Correção da causa raiz e criação de testes de regressão.
-6. SAST com Bandit, SCA com `pip-audit` e auditoria npm no pipeline.
+6. SAST com Bandit, SCA com `pip-audit` e auditoria npm bloqueante no pipeline.
 7. Validação de build, testes, configuração de infraestrutura e documentação.
 
 As pontuações CVSS são estimativas para priorização e devem ser recalculadas com o contexto definitivo de implantação.
@@ -149,6 +149,7 @@ A API aceitava consultas sem token válido e devolvia HTTP 200. A implementaçã
 | SQL parametrizado | placeholders SQLite no blueprint de cursos | injeção caso o módulo seja ativado |
 | Containers sem root | usuário dedicado, `cap_drop` e `no-new-privileges` | impacto de comprometimento do processo |
 | Detecção de segredos | Gitleaks no CI e arquivos sensíveis ignorados | nova exposição acidental |
+| Dependências auditadas | `pip-audit` e `npm audit --audit-level=high` bloqueiam o CI | componentes com vulnerabilidades conhecidas |
 
 O rate limiter em memória atende ao ambiente isolado do desafio. Em produção com múltiplas réplicas, deve ser substituído por estado compartilhado em Redis ou aplicado no API Gateway.
 
@@ -159,7 +160,7 @@ Foram implementados logs JSON, correlação por `X-Request-ID`, `/health`, `/met
 ## 7. Priorização recomendada
 
 1. Revogar e substituir qualquer credencial que ainda esteja válida no projeto de origem.
-2. Manter autenticação, mensagens de erro e política CORS como bloqueios obrigatórios de CI.
+2. Manter testes de autenticação, mensagens de erro, política CORS e auditorias de dependência como bloqueios obrigatórios de CI.
 3. Configurar credenciais Firebase próprias por secret manager, sem arquivos versionados.
 4. Trocar rate limiting local por armazenamento compartilhado antes de escalar horizontalmente.
 5. Definir alertas baseados no consumo do error budget e testar falha de uma instância.
@@ -176,4 +177,4 @@ Foram implementados logs JSON, correlação por `X-Request-ID`, `/health`, `/met
 
 ## 9. Validação
 
-Os comandos, resultados observados e limitações estão em [TOOL_RESULTS.md](TOOL_RESULTS.md). A reprodução segura dos achados e a execução da versão corrigida estão descritas no [README](../README.md).
+Os comandos e resultados observados estão em [TOOL_RESULTS.md](TOOL_RESULTS.md). O passo a passo executável de cada achado está em [REPRODUCTION.md](REPRODUCTION.md), e a execução geral da solução está descrita no [README](../README.md).
