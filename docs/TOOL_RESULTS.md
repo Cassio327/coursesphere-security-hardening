@@ -1,6 +1,6 @@
 # Resultados das validações
 
-Data: 27/10/2026.
+Data da validação final: 29/10/2026.
 
 ## Testes e build
 
@@ -14,30 +14,68 @@ Data: 27/10/2026.
 | Scripts shell | `sh -n scripts/*.sh` | sintaxe válida |
 | Runtime Docker | Compose no GitHub Actions | balanceamento e smoke test aprovados |
 
-O Vite informou que o bundle principal é maior que 500 kB. É uma oportunidade de otimização, não um erro de build.
+O Vite informou que o bundle principal é maior que 500 kB. O build permanece válido;
+a divisão de código é uma oportunidade de desempenho, não uma falha de segurança.
 
 ## Segurança automatizada
 
-| Ferramenta | Escopo | Resultado local |
+| Ferramenta | Escopo | Resultado final |
 |---|---|---|
-| Bandit 1.8.3 | backend, excluindo testes | nenhuma ocorrência após correções |
+| Bandit 1.8.3 | backend, excluindo testes | nenhuma ocorrência |
 | pip-audit 2.8.0 | `backend/requirements.txt` | nenhuma vulnerabilidade conhecida |
-| npm audit | `frontend/package-lock.json` | etapa concluída no CI |
+| npm audit | `frontend/package-lock.json` | 0 vulnerabilidades conhecidas |
 | Gitleaks | histórico Git | nenhuma exposição detectada no CI |
 
-O primeiro uso do Bandit sinalizou consultas SQL interpoladas no blueprint inativo, `assert` usado como validação e bind de desenvolvimento em todas as interfaces. Esses pontos foram corrigidos antes da execução final.
+O primeiro uso do Bandit sinalizou consultas SQL interpoladas no blueprint inativo,
+`assert` usado como validação e bind de desenvolvimento em todas as interfaces.
+Esses pontos foram corrigidos antes da execução final.
+
+## Remediação das dependências do frontend
+
+A revisão final encontrou que a etapa npm existia no CI, mas estava marcada com
+`continue-on-error`. Por isso, a pipeline permanecia verde mesmo quando
+`npm audit` retornava erro.
+
+Resultado inicial observado:
+
+| Severidade | Quantidade |
+|---|---:|
+| Baixa | 1 |
+| Moderada | 17 |
+| Alta | 19 |
+| Crítica | 2 |
+| **Total** | **39** |
+
+Um `npm audit fix` conservador reduziu o total para 17, mas não eliminou quatro
+vulnerabilidades altas. A correção final atualizou em conjunto Firebase, Vite,
+plugin React, TypeScript, TypeScript ESLint e React Router, removeu a dependência
+`uuid` não utilizada e fixou a versão transitiva corrigida de
+`@grpc/grpc-js`.
+
+Validação executada após a atualização:
+
+```text
+npm ci                         concluído
+npm run lint                   concluído sem erros
+npm run build                  concluído
+npm audit --audit-level=high   found 0 vulnerabilities
+```
+
+A auditoria agora é bloqueante: novas vulnerabilidades altas ou críticas fazem o
+job do frontend falhar.
 
 ## Infraestrutura
 
-Docker não estava disponível no ambiente local. A validação de runtime foi executada no GitHub Actions:
+A validação de runtime é executada no GitHub Actions:
 
-- `docker compose config` validou a configuração;
-- as imagens de backend e frontend foram construídas;
-- Nginx, frontend e duas réplicas do backend foram iniciados;
-- oito requisições alcançaram `backend-1` e `backend-2`;
-- o smoke test confirmou HTTP 401 sem token e headers de segurança ativos;
-- os containers foram encerrados e os volumes temporários removidos.
+- `docker compose config` valida a configuração;
+- as imagens de backend e frontend são construídas;
+- Nginx, frontend e duas réplicas do backend são iniciados;
+- oito requisições precisam alcançar `backend-1` e `backend-2`;
+- o smoke test confirma HTTP 401 sem token e headers de segurança ativos;
+- os containers são encerrados e os volumes temporários removidos.
 
 Saída sanitizada: [evidência de balanceamento](evidence/LOAD-BALANCING.md).
 
-Nenhum resultado de ferramenta foi inventado ou marcado como aprovado sem execução.
+Os comandos de reprodução estão em [REPRODUCTION.md](REPRODUCTION.md). Nenhum
+resultado de ferramenta foi inventado ou marcado como aprovado sem execução.

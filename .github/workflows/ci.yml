@@ -43,8 +43,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
-      - name: Dependency audit report
-        continue-on-error: true
+      - name: Block high and critical dependency vulnerabilities
         run: npm audit --audit-level=high
 
   containers:
