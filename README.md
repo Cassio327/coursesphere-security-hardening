@@ -2,6 +2,31 @@
 
 Avaliação prática de AppSec, SRE e DevOps realizada sobre o [CourseSphere](https://github.com/LambdaAK/CourseSphere). O projeto documenta cinco vulnerabilidades reais, corrige a causa raiz de quatro delas e adiciona hardening, testes, observabilidade, containers e balanceamento entre duas instâncias da API.
 
+## Problema e arquitetura — visão rápida
+
+**Problema:** a aplicação de referência expunha comportamentos inseguros na autenticação,
+no uso de tokens, no CORS e no tratamento de erros, além de uma credencial versionada
+que exigia resposta do responsável pelo serviço.
+
+**Solução:** análise orientada a OWASP, reprodução local controlada, correções nos
+comportamentos da API, testes de regressão e uma infraestrutura demonstrativa
+para monitoramento e confiabilidade.
+
+**Fluxo:** `React → Nginx (reverse proxy e balanceamento) → 2 instâncias Flask`;
+logs estruturados e métricas das APIs alimentam `Prometheus → Grafana`.
+
+**Stack:** `Python / Flask` · `React` · `Docker Compose` · `Nginx` ·
+`pytest` · `Prometheus / Grafana` · `GitHub Actions` · `Bandit / pip-audit / Gitleaks`.
+
+**Evidências:** [relatório de segurança](docs/SECURITY_REPORT.md) ·
+[reprodução e regressões](docs/REPRODUCTION.md) ·
+[arquitetura e observabilidade](docs/OBSERVABILITY.md) ·
+[CI](https://github.com/Cassio327/coursesphere-security-hardening/actions/workflows/ci.yml).
+
+> **Escopo:** quatro comportamentos vulneráveis corrigidos diretamente; a credencial
+> encontrada em histórico de código requer rotação pelo proprietário original.
+> Este repositório é um case de segurança e SRE, não um sistema em produção.
+
 ## Resultado
 
 - 5 vulnerabilidades confirmadas em 4 categorias;
